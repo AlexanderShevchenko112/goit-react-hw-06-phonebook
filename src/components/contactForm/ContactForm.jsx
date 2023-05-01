@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { add } from 'redux/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { add } from 'redux/contactsSlice';
 import { nanoid } from 'nanoid';
 import css from 'components/contactForm/ContactForm.module.css';
 
@@ -8,6 +8,7 @@ const ContactForm = () => {
   const dispatch = useDispatch();
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
+  const contacts = useSelector(state => state.contacts);
 
   const handleChange = event => {
     const { name, value } = event.target;
@@ -18,6 +19,12 @@ const ContactForm = () => {
     }
   };
 
+  const isDuplicateContact = name => {
+    return contacts.some(
+      contact => contact.name.toLowerCase() === name.toLowerCase()
+    );
+  };
+
   const handleSubmit = event => {
     event.preventDefault();
     const newContact = {
@@ -25,6 +32,10 @@ const ContactForm = () => {
       name,
       number,
     };
+    if (isDuplicateContact(name)) {
+      alert(`${name} is already in contacts`);
+      return;
+    }
     dispatch(add(newContact));
     setName('');
     setNumber('');
